@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Slider</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <style>
+            #left, #right {
+                width: 40%;
+                height: 200px;
+            }
+        </style>
+        <script>
+            var ws = new WebSocket('ws://' + location.host + '/commands');
+        </script>
+    </head>
+    <body>
+        <p style="text-align:center;">
+            <button id="left" onclick="ws.send('LEFT')">LEFT</button>
+            <button id="right" onclick="ws.send('RIGHT')">RIGHT</button>
+        </p>
+    </body>
+</html>
+

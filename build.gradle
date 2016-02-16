@@ -1,7 +1,7 @@
 buildscript {
     ext {
         springBootVersion = '1.3.2.RELEASE'
-        jerseyVersion = '2.22.1'
+        undertowVersion = '1.3.17.Final'
     }
     repositories {
         jcenter()
@@ -26,5 +26,6 @@ repositories {
 }
 
 dependencies {
-    compile "org.glassfish.jersey.containers:jersey-container-grizzly2-http:${jerseyVersion}"
+    compile "io.undertow:undertow-servlet:${undertowVersion}"
+    compile "io.undertow:undertow-websockets-jsr:${undertowVersion}"
 }

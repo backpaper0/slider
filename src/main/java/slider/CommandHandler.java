@@ -3,20 +3,21 @@ package slider;
 import java.awt.Robot;
 import java.awt.event.KeyEvent;
 
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
+import javax.websocket.OnMessage;
+import javax.websocket.Session;
+import javax.websocket.server.ServerEndpoint;
 
-@Path("commands")
+@ServerEndpoint("/commands")
 public class CommandHandler {
 
-    @POST
-    public void post(String command) throws Exception {
+    @OnMessage
+    public void post(String command, Session session) throws Exception {
         Robot robot = new Robot();
-        switch (command.toLowerCase()) {
-        case "left":
+        switch (command) {
+        case "LEFT":
             robot.keyPress(KeyEvent.VK_LEFT);
             break;
-        case "right":
+        case "RIGHT":
             robot.keyPress(KeyEvent.VK_RIGHT);
             break;
         }
