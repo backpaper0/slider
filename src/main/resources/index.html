@@ -8,16 +8,34 @@
                 width: 40%;
                 height: 200px;
             }
+            #screenshot { border: 1px solid black; }
         </style>
-        <script>
-            var ws = new WebSocket('ws://' + location.host + '/commands');
-        </script>
     </head>
     <body>
-        <p style="text-align:center;">
-            <button id="left" onclick="ws.send('LEFT')">LEFT</button>
-            <button id="right" onclick="ws.send('RIGHT')">RIGHT</button>
-        </p>
+        <div>
+            <canvas id="screenshot"></canvas>
+        </div>
+        <div style="text-align:center;">
+            <button id="left" onclick="send('LEFT')">LEFT</button>
+            <button id="right" onclick="send('RIGHT')">RIGHT</button>
+        </div>
+        <script>
+            var ss = document.getElementById('screenshot');
+            ss.width = window.innerWidth;
+            ss.height = window.innerHeight - left.offsetHeight;
+            var ws = new WebSocket('ws://' + location.host + '/commands');
+            ws.onmessage = function(event) {
+                var img = new Image();
+                img.src = event.data;
+                img.onload = function() {
+                    var ctx = ss.getContext("2d");
+                    ctx.drawImage(img, 0, 0, ss.width, ss.height);
+                }
+            }
+            function send(command) { 
+                ws.send(command + ',' + window.innerWidth + ',' + window.innerHeight);
+            }
+        </script>
     </body>
 </html>
 
