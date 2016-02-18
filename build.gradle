@@ -2,6 +2,7 @@ buildscript {
     ext {
         springBootVersion = '1.3.2.RELEASE'
         undertowVersion = '1.3.17.Final'
+        jsonVersion = '1.0.4'
     }
     repositories {
         jcenter()
@@ -28,4 +29,5 @@ repositories {
 dependencies {
     compile "io.undertow:undertow-servlet:${undertowVersion}"
     compile "io.undertow:undertow-websockets-jsr:${undertowVersion}"
+    compile "org.glassfish:javax.json:${jsonVersion}"
 }

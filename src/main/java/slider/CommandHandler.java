@@ -9,10 +9,14 @@ import java.awt.Robot;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Base64;
 import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
@@ -28,7 +32,13 @@ public class CommandHandler {
 
     @OnOpen
     public void connected(Session session) throws Exception {
-        session.getAsyncRemote().sendText("{\"type\":\"connected\"}");
+        StringWriter json = new StringWriter();
+        try (JsonGenerator gen = Json.createGenerator(json)) {
+            gen.writeStartObject();
+            gen.write("type", "init");
+            gen.writeEnd();
+        }
+        session.getAsyncRemote().sendText(json.toString());
         robot = new Robot();
         dm = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
                 .getDisplayMode();
@@ -43,24 +53,36 @@ public class CommandHandler {
             robot.keyRelease(KeyEvent.VK_LEFT);
             robot.waitForIdle();
             TimeUnit.MILLISECONDS.sleep(300);
-            break;
+            screenshot(session);
+            return;
         case "RIGHT":
             robot.keyPress(KeyEvent.VK_RIGHT);
             robot.waitForIdle();
             robot.keyRelease(KeyEvent.VK_RIGHT);
             robot.waitForIdle();
             TimeUnit.MILLISECONDS.sleep(300);
-            break;
+            screenshot(session);
+            return;
         case "SCREENSHOT":
-            break;
+            screenshot(session);
+            return;
         default:
             width = Integer.parseInt(command);
             height = width * dm.getHeight() / dm.getWidth();
-            session.getAsyncRemote().sendText(
-                    "{\"type\":\"init\",\"width\":" + width + ",\"height\":" + height + "}");
+            StringWriter json = new StringWriter();
+            try (JsonGenerator gen = Json.createGenerator(json)) {
+                gen.writeStartObject();
+                gen.write("type", "resize");
+                gen.write("width", width);
+                gen.write("height", height);
+                gen.writeEnd();
+            }
+            session.getAsyncRemote().sendText(json.toString());
             return;
         }
+    }
 
+    private void screenshot(Session session) throws IOException {
         Rectangle r = new Rectangle(0, 0, dm.getWidth(), dm.getHeight());
         BufferedImage src = robot.createScreenCapture(r);
         BufferedImage dest = new BufferedImage(width, height, src.getType());
@@ -72,6 +94,13 @@ public class CommandHandler {
         ImageIO.write(dest, "jpeg", out);
         String data = "data:image/jpeg;base64,"
                 + Base64.getEncoder().encodeToString(out.toByteArray());
-        session.getAsyncRemote().sendText("{\"type\":\"data\",\"data\":\"" + data + "\"}");
+        StringWriter json = new StringWriter();
+        try (JsonGenerator gen = Json.createGenerator(json)) {
+            gen.writeStartObject();
+            gen.write("type", "screenshot");
+            gen.write("data", data);
+            gen.writeEnd();
+        }
+        session.getAsyncRemote().sendText(json.toString());
     }
 }

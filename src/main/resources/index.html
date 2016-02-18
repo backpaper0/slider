@@ -27,12 +27,12 @@
             var ws = new WebSocket('ws://' + location.host + '/commands');
             ws.onmessage = function(event) {
                 var obj = JSON.parse(event.data);
-                if (obj.type == 'connected') {
+                if (obj.type == 'init') {
                     ws.send(Math.floor(window.innerWidth * 0.9));
-                } else if (obj.type == 'init') {
+                } else if (obj.type == 'resize') {
                     ss.width = obj.width;
                     ss.height = obj.height;
-                } else if (obj.type == 'data') {
+                } else if (obj.type == 'screenshot') {
                     var img = new Image();
                     img.src = obj.data;
                     img.onload = function() {
