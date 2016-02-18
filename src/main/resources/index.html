@@ -4,9 +4,9 @@
         <title>Slider</title>
         <meta name="viewport" content="width=device-width,initial-scale=1">
         <style>
-            #left, #right {
+            .command {
                 width: 40%;
-                height: 200px;
+                height: 100px;
             }
             #screenshot { border: 1px solid black; }
         </style>
@@ -16,19 +16,19 @@
             <canvas id="screenshot"></canvas>
         </div>
         <div style="text-align:center;">
-            <button id="left" onclick="send('LEFT')">LEFT</button>
-            <button id="right" onclick="send('RIGHT')">RIGHT</button>
+            <button class="command" onclick="ws.send('SCREENSHOT')">Screenshot</button>
+        </div>
+        <div style="text-align:center;">
+            <button class="command" onclick="ws.send('LEFT')">Left</button>
+            <button class="command" onclick="ws.send('RIGHT')">Right</button>
         </div>
         <script>
             var ss = document.getElementById('screenshot');
             var ws = new WebSocket('ws://' + location.host + '/commands');
-            function send(command) { 
-                ws.send(command + ',' + Math.floor(window.innerWidth * 0.9));
-            }
             ws.onmessage = function(event) {
                 var obj = JSON.parse(event.data);
                 if (obj.type == 'connected') {
-                    send('INIT');
+                    ws.send(Math.floor(window.innerWidth * 0.9));
                 } else if (obj.type == 'init') {
                     ss.width = obj.width;
                     ss.height = obj.height;

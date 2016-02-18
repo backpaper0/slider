@@ -21,51 +21,51 @@ import javax.websocket.server.ServerEndpoint;
 @ServerEndpoint("/commands")
 public class CommandHandler {
 
-    @OnOpen
-    public void connected(Session session) throws Exception {
-        session.getAsyncRemote().sendText("{\"type\":\"connected\"}");
-    }
-
     private Robot robot;
     private int width;
     private int height;
     private DisplayMode dm;
 
+    @OnOpen
+    public void connected(Session session) throws Exception {
+        session.getAsyncRemote().sendText("{\"type\":\"connected\"}");
+        robot = new Robot();
+        dm = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
+                .getDisplayMode();
+    }
+
     @OnMessage
     public void post(String command, Session session) throws Exception {
-        System.out.println(command + ":" + this);
-        String[] commands = command.split(",");
-        robot = new Robot();
-        switch (commands[0]) {
-        case "INIT":
-            dm = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
-                    .getDisplayMode();
-            width = Integer.parseInt(commands[1]);
-            height = width * dm.getHeight() / dm.getWidth();
-            session.getAsyncRemote().sendText(
-                    "{\"type\":\"init\",\"width\":" + width + ",\"height\":" + height + "}");
-            return;
+        switch (command) {
         case "LEFT":
             robot.keyPress(KeyEvent.VK_LEFT);
             robot.waitForIdle();
             robot.keyRelease(KeyEvent.VK_LEFT);
             robot.waitForIdle();
+            TimeUnit.MILLISECONDS.sleep(300);
             break;
         case "RIGHT":
             robot.keyPress(KeyEvent.VK_RIGHT);
             robot.waitForIdle();
             robot.keyRelease(KeyEvent.VK_RIGHT);
             robot.waitForIdle();
+            TimeUnit.MILLISECONDS.sleep(300);
             break;
+        case "SCREENSHOT":
+            break;
+        default:
+            width = Integer.parseInt(command);
+            height = width * dm.getHeight() / dm.getWidth();
+            session.getAsyncRemote().sendText(
+                    "{\"type\":\"init\",\"width\":" + width + ",\"height\":" + height + "}");
+            return;
         }
-
-        TimeUnit.MILLISECONDS.sleep(300);
 
         Rectangle r = new Rectangle(0, 0, dm.getWidth(), dm.getHeight());
         BufferedImage src = robot.createScreenCapture(r);
         BufferedImage dest = new BufferedImage(width, height, src.getType());
         Graphics2D g = dest.createGraphics();
-        Image img = src.getScaledInstance(width, height, BufferedImage.SCALE_DEFAULT);
+        Image img = src.getScaledInstance(width, height, BufferedImage.SCALE_SMOOTH);
         g.drawImage(img, 0, 0, width, height, null);
         g.dispose();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
