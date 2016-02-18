@@ -11,9 +11,10 @@ import io.undertow.servlet.api.DeploymentManager;
 import io.undertow.servlet.api.ServletContainer;
 import io.undertow.websockets.jsr.WebSocketDeploymentInfo;
 
-public class SliderApi {
+public class Slider {
 
     public static void main(String[] args) throws Exception {
+
         PathHandler path = Handlers.path();
 
         Undertow server = Undertow.builder().addHttpListener(8080, "0.0.0.0").setHandler(path)
@@ -22,10 +23,9 @@ public class SliderApi {
 
         ServletContainer container = ServletContainer.Factory.newInstance();
 
-        DeploymentInfo builder = Servlets.deployment()
-                .setClassLoader(SliderApi.class.getClassLoader()).setContextPath("/")
-                .addWelcomePage("index.html")
-                .setResourceManager(new ClassPathResourceManager(SliderApi.class.getClassLoader()))
+        DeploymentInfo builder = Servlets.deployment().setClassLoader(Slider.class.getClassLoader())
+                .setContextPath("/").addWelcomePage("index.html")
+                .setResourceManager(new ClassPathResourceManager(Slider.class.getClassLoader()))
                 .addServletContextAttribute(WebSocketDeploymentInfo.ATTRIBUTE_NAME,
                         new WebSocketDeploymentInfo()
                                 .setBuffers(new DefaultByteBufferPool(true, 100))
