@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Base64;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import javax.imageio.ImageIO;
 import javax.json.Json;
@@ -32,13 +33,9 @@ public class CommandHandler {
 
     @OnOpen
     public void connected(Session session) throws Exception {
-        StringWriter json = new StringWriter();
-        try (JsonGenerator gen = Json.createGenerator(json)) {
-            gen.writeStartObject();
+        writeJsonObject(session, gen -> {
             gen.write("type", "init");
-            gen.writeEnd();
-        }
-        session.getAsyncRemote().sendText(json.toString());
+        });
         robot = new Robot();
         dm = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
                 .getDisplayMode();
@@ -48,18 +45,12 @@ public class CommandHandler {
     public void post(String command, Session session) throws Exception {
         switch (command) {
         case "LEFT":
-            robot.keyPress(KeyEvent.VK_LEFT);
-            robot.waitForIdle();
-            robot.keyRelease(KeyEvent.VK_LEFT);
-            robot.waitForIdle();
+            key(KeyEvent.VK_LEFT);
             TimeUnit.MILLISECONDS.sleep(300);
             screenshot(session);
             return;
         case "RIGHT":
-            robot.keyPress(KeyEvent.VK_RIGHT);
-            robot.waitForIdle();
-            robot.keyRelease(KeyEvent.VK_RIGHT);
-            robot.waitForIdle();
+            key(KeyEvent.VK_RIGHT);
             TimeUnit.MILLISECONDS.sleep(300);
             screenshot(session);
             return;
@@ -69,17 +60,20 @@ public class CommandHandler {
         default:
             width = Integer.parseInt(command);
             height = width * dm.getHeight() / dm.getWidth();
-            StringWriter json = new StringWriter();
-            try (JsonGenerator gen = Json.createGenerator(json)) {
-                gen.writeStartObject();
+            writeJsonObject(session, gen -> {
                 gen.write("type", "resize");
                 gen.write("width", width);
                 gen.write("height", height);
-                gen.writeEnd();
-            }
-            session.getAsyncRemote().sendText(json.toString());
+            });
             return;
         }
+    }
+
+    private void key(int keycode) {
+        robot.keyPress(keycode);
+        robot.waitForIdle();
+        robot.keyRelease(keycode);
+        robot.waitForIdle();
     }
 
     private void screenshot(Session session) throws IOException {
@@ -94,11 +88,18 @@ public class CommandHandler {
         ImageIO.write(dest, "jpeg", out);
         String data = "data:image/jpeg;base64,"
                 + Base64.getEncoder().encodeToString(out.toByteArray());
+
+        writeJsonObject(session, gen -> {
+            gen.write("type", "screenshot");
+            gen.write("data", data);
+        });
+    }
+
+    private void writeJsonObject(Session session, Consumer<JsonGenerator> consumer) {
         StringWriter json = new StringWriter();
         try (JsonGenerator gen = Json.createGenerator(json)) {
             gen.writeStartObject();
-            gen.write("type", "screenshot");
-            gen.write("data", data);
+            consumer.accept(gen);
             gen.writeEnd();
         }
         session.getAsyncRemote().sendText(json.toString());
