@@ -21,19 +21,25 @@
         </div>
         <script>
             var ss = document.getElementById('screenshot');
-            ss.width = window.innerWidth;
-            ss.height = window.innerHeight - left.offsetHeight;
             var ws = new WebSocket('ws://' + location.host + '/commands');
-            ws.onmessage = function(event) {
-                var img = new Image();
-                img.src = event.data;
-                img.onload = function() {
-                    var ctx = ss.getContext("2d");
-                    ctx.drawImage(img, 0, 0, ss.width, ss.height);
-                }
-            }
             function send(command) { 
-                ws.send(command + ',' + window.innerWidth + ',' + window.innerHeight);
+                ws.send(command + ',' + Math.floor(window.innerWidth * 0.9));
+            }
+            ws.onmessage = function(event) {
+                var obj = JSON.parse(event.data);
+                if (obj.type == 'connected') {
+                    send('INIT');
+                } else if (obj.type == 'init') {
+                    ss.width = obj.width;
+                    ss.height = obj.height;
+                } else if (obj.type == 'data') {
+                    var img = new Image();
+                    img.src = obj.data;
+                    img.onload = function() {
+                        var ctx = ss.getContext("2d");
+                        ctx.drawImage(img, 0, 0, ss.width, ss.height);
+                    }
+                }
             }
         </script>
     </body>
