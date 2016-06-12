@@ -54,6 +54,11 @@ public class CommandHandler {
             TimeUnit.MILLISECONDS.sleep(300);
             screenshot(session);
             return;
+        case "PRESENTATION":
+            key(KeyEvent.VK_P);
+            TimeUnit.MILLISECONDS.sleep(300);
+            screenshot(session);
+            return;
         case "SCREENSHOT":
             screenshot(session);
             return;
