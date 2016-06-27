@@ -35,31 +35,32 @@ public class CommandService {
         });
     }
 
-    public String post(String command) throws Exception {
-        switch (command) {
-        case "LEFT":
-            key(KeyEvent.VK_LEFT);
-            TimeUnit.MILLISECONDS.sleep(300);
-            return screenshot();
-        case "RIGHT":
-            key(KeyEvent.VK_RIGHT);
-            TimeUnit.MILLISECONDS.sleep(300);
-            return screenshot();
-        case "PRESENTATION":
-            key(KeyEvent.VK_P);
-            TimeUnit.MILLISECONDS.sleep(300);
-            return screenshot();
-        case "SCREENSHOT":
-            return screenshot();
-        default:
-            width = Integer.parseInt(command);
-            height = width * dm.getHeight() / dm.getWidth();
-            return writeJsonObject(gen -> {
-                gen.write("type", "resize");
-                gen.write("width", width);
-                gen.write("height", height);
-            });
-        }
+    public String left() throws Exception {
+        key(KeyEvent.VK_LEFT);
+        TimeUnit.MILLISECONDS.sleep(300);
+        return screenshot();
+    }
+
+    public String right() throws Exception {
+        key(KeyEvent.VK_RIGHT);
+        TimeUnit.MILLISECONDS.sleep(300);
+        return screenshot();
+    }
+
+    public String presentation() throws Exception {
+        key(KeyEvent.VK_P);
+        TimeUnit.MILLISECONDS.sleep(300);
+        return screenshot();
+    }
+
+    public String resize(String command) throws Exception {
+        width = Integer.parseInt(command);
+        height = width * dm.getHeight() / dm.getWidth();
+        return writeJsonObject(gen -> {
+            gen.write("type", "resize");
+            gen.write("width", width);
+            gen.write("height", height);
+        });
     }
 
     private void key(int keycode) {
@@ -69,7 +70,7 @@ public class CommandService {
         robot.waitForIdle();
     }
 
-    private String screenshot() throws IOException {
+    public String screenshot() throws IOException {
         Rectangle r = new Rectangle(0, 0, dm.getWidth(), dm.getHeight());
         BufferedImage src = robot.createScreenCapture(r);
         BufferedImage dest = new BufferedImage(width, height, src.getType());

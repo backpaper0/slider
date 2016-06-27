@@ -17,6 +17,22 @@ public class CommandHandler {
 
     @OnMessage
     public void post(String command, Session session) throws Exception {
-        session.getAsyncRemote().sendText(service.post(command));
+        switch (command) {
+        case "LEFT":
+            session.getAsyncRemote().sendText(service.left());
+            break;
+        case "RIGHT":
+            session.getAsyncRemote().sendText(service.right());
+            break;
+        case "PRESENTATION":
+            session.getAsyncRemote().sendText(service.presentation());
+            break;
+        case "SCREENSHOT":
+            session.getAsyncRemote().sendText(service.screenshot());
+            break;
+        default:
+            session.getAsyncRemote().sendText(service.resize(command));
+            break;
+        }
     }
 }
