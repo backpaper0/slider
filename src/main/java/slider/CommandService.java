@@ -1,9 +1,9 @@
 package slider;
 
+import java.awt.AWTException;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import javax.json.Json;
@@ -13,32 +13,29 @@ public class CommandService {
 
     private CommandContext context = new CommandContext();
 
-    public String connected() throws Exception {
+    public String connected() throws AWTException {
         context.connected();
         return writeJsonObject(gen -> {
             gen.write("type", "init");
         });
     }
 
-    public String left() throws Exception {
+    public String left() throws IOException, InterruptedException {
         context.key(KeyEvent.VK_LEFT);
-        TimeUnit.MILLISECONDS.sleep(300);
         return screenshot();
     }
 
-    public String right() throws Exception {
+    public String right() throws IOException, InterruptedException {
         context.key(KeyEvent.VK_RIGHT);
-        TimeUnit.MILLISECONDS.sleep(300);
         return screenshot();
     }
 
-    public String presentation() throws Exception {
+    public String presentation() throws IOException, InterruptedException {
         context.key(KeyEvent.VK_P);
-        TimeUnit.MILLISECONDS.sleep(300);
         return screenshot();
     }
 
-    public String resize(String command) throws Exception {
+    public String resize(String command) {
         int width = Integer.parseInt(command);
         context.resize(width);
         return writeJsonObject(gen -> {

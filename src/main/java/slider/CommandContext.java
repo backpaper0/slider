@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Base64;
+import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 
@@ -27,11 +28,12 @@ public class CommandContext {
                 .getDisplayMode();
     }
 
-    public void key(int keycode) {
+    public void key(int keycode) throws InterruptedException {
         robot.keyPress(keycode);
         robot.waitForIdle();
         robot.keyRelease(keycode);
         robot.waitForIdle();
+        TimeUnit.MILLISECONDS.sleep(300);
     }
 
     public void resize(int width) {
