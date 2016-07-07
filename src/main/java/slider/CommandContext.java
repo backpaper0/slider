@@ -15,6 +15,9 @@ import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class CommandContext {
 
     private Robot robot;

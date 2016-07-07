@@ -9,9 +9,14 @@ import java.util.function.Consumer;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
 public class CommandService {
 
-    private CommandContext context = new CommandContext();
+    @Autowired
+    private CommandContext context;
 
     public String connected() throws AWTException {
         context.connected();
