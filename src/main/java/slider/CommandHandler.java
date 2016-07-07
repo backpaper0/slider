@@ -1,9 +1,11 @@
 package slider;
 
+import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+@Component
 public class CommandHandler extends TextWebSocketHandler {
 
     private final CommandService service = new CommandService();
