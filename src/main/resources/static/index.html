@@ -27,6 +27,7 @@
             var ss = document.getElementById('screenshot');
             var ws = new WebSocket('ws://' + location.host + '/commands');
             ws.onmessage = function(event) {
+                console.log(event);
                 var obj = JSON.parse(event.data);
                 if (obj.type == 'init') {
                     ws.send(Math.floor(window.innerWidth * 0.9));

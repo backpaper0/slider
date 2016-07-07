@@ -1,37 +1,37 @@
 package slider;
 
-import javax.websocket.OnMessage;
-import javax.websocket.OnOpen;
-import javax.websocket.Session;
-import javax.websocket.server.ServerEndpoint;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-@ServerEndpoint("/commands")
-public class CommandHandler {
+public class CommandHandler extends TextWebSocketHandler {
 
     private final CommandService service = new CommandService();
 
-    @OnOpen
-    public void connected(Session session) throws Exception {
-        session.getAsyncRemote().sendText(service.connected());
+    @Override
+    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+        session.sendMessage(new TextMessage(service.connected()));
     }
 
-    @OnMessage
-    public void post(String command, Session session) throws Exception {
+    @Override
+    protected void handleTextMessage(WebSocketSession session, TextMessage message)
+            throws Exception {
+        String command = message.getPayload();
         switch (command) {
         case "LEFT":
-            session.getAsyncRemote().sendText(service.left());
+            session.sendMessage(new TextMessage(service.left()));
             break;
         case "RIGHT":
-            session.getAsyncRemote().sendText(service.right());
+            session.sendMessage(new TextMessage(service.right()));
             break;
         case "PRESENTATION":
-            session.getAsyncRemote().sendText(service.presentation());
+            session.sendMessage(new TextMessage(service.presentation()));
             break;
         case "SCREENSHOT":
-            session.getAsyncRemote().sendText(service.screenshot());
+            session.sendMessage(new TextMessage(service.screenshot()));
             break;
         default:
-            session.getAsyncRemote().sendText(service.resize(command));
+            session.sendMessage(new TextMessage(service.resize(command)));
             break;
         }
     }

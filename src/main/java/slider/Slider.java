@@ -1,39 +1,30 @@
 package slider;
 
-import io.undertow.Handlers;
-import io.undertow.Undertow;
-import io.undertow.server.DefaultByteBufferPool;
-import io.undertow.server.handlers.PathHandler;
-import io.undertow.server.handlers.resource.ClassPathResourceManager;
-import io.undertow.servlet.Servlets;
-import io.undertow.servlet.api.DeploymentInfo;
-import io.undertow.servlet.api.DeploymentManager;
-import io.undertow.servlet.api.ServletContainer;
-import io.undertow.websockets.jsr.WebSocketDeploymentInfo;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.socket.WebSocketHandler;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
+import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
-public class Slider {
+@SpringBootApplication
+@EnableWebSocket
+public class Slider implements WebSocketConfigurer {
 
     public static void main(String[] args) throws Exception {
+        SpringApplication app = new SpringApplication(Slider.class);
+        app.setHeadless(false);
+        app.run(args);
+    }
 
-        PathHandler path = Handlers.path();
+    @Override
+    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        registry.addHandler(commandHandler(), "/commands");
+    }
 
-        Undertow server = Undertow.builder().addHttpListener(8080, "0.0.0.0").setHandler(path)
-                .build();
-        server.start();
-
-        ServletContainer container = ServletContainer.Factory.newInstance();
-
-        DeploymentInfo builder = Servlets.deployment().setClassLoader(Slider.class.getClassLoader())
-                .setContextPath("/").addWelcomePage("index.html")
-                .setResourceManager(new ClassPathResourceManager(Slider.class.getClassLoader()))
-                .addServletContextAttribute(WebSocketDeploymentInfo.ATTRIBUTE_NAME,
-                        new WebSocketDeploymentInfo()
-                                .setBuffers(new DefaultByteBufferPool(true, 100))
-                                .addEndpoint(CommandHandler.class))
-                .setDeploymentName("slider.war");
-
-        DeploymentManager manager = container.addDeployment(builder);
-        manager.deploy();
-        path.addPrefixPath("/", manager.start());
+    @Bean
+    public WebSocketHandler commandHandler() {
+        return new CommandHandler();
     }
 }
