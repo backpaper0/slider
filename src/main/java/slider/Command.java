@@ -1,10 +1,41 @@
 package slider;
 
+import java.io.IOException;
 import java.io.Serializable;
+
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Command implements Serializable {
 
     public final String type;
+
+    public void send(WebSocketSession session, ObjectMapper objectMapper) {
+        try {
+            String json = objectMapper.writeValueAsString(this);
+            TextMessage message = new TextMessage(json);
+            session.sendMessage(message);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Command create(CommandService service, String command) {
+        switch (command) {
+        case "LEFT":
+            return service.left();
+        case "RIGHT":
+            return service.right();
+        case "PRESENTATION":
+            return service.presentation();
+        case "SCREENSHOT":
+            return service.screenshot();
+        default:
+            return service.resize(command);
+        }
+    }
 
     public Command(String type) {
         this.type = type;

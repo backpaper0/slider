@@ -25,18 +25,28 @@ public class CommandContext {
     private int height;
     private DisplayMode dm;
 
-    public void connected() throws AWTException {
-        robot = new Robot();
-        dm = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
+    public void connected() {
+        try {
+            robot = new Robot();
+        } catch (AWTException e) {
+            throw new RuntimeException(e);
+        }
+        dm = GraphicsEnvironment
+                .getLocalGraphicsEnvironment()
+                .getDefaultScreenDevice()
                 .getDisplayMode();
     }
 
-    public void key(int keycode) throws InterruptedException {
+    public void key(int keycode) {
         robot.keyPress(keycode);
         robot.waitForIdle();
         robot.keyRelease(keycode);
         robot.waitForIdle();
-        TimeUnit.MILLISECONDS.sleep(300);
+        try {
+            TimeUnit.MILLISECONDS.sleep(300);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void resize(int width) {
@@ -44,7 +54,7 @@ public class CommandContext {
         this.height = width * dm.getHeight() / dm.getWidth();
     }
 
-    public String screenshot() throws IOException {
+    public String screenshot() {
         Rectangle r = new Rectangle(0, 0, dm.getWidth(), dm.getHeight());
         BufferedImage src = robot.createScreenCapture(r);
         BufferedImage dest = new BufferedImage(width, height, src.getType());
@@ -53,7 +63,11 @@ public class CommandContext {
         g.drawImage(img, 0, 0, width, height, null);
         g.dispose();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ImageIO.write(dest, "jpeg", out);
+        try {
+            ImageIO.write(dest, "jpeg", out);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         String data = "data:image/jpeg;base64,"
                 + Base64.getEncoder().encodeToString(out.toByteArray());
         return data;

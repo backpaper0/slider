@@ -18,31 +18,14 @@ public class CommandHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        sendCommand(session, service.connected());
+        Command command = service.connected();
+        command.send(session, objectMapper);
     }
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message)
             throws Exception {
-        sendCommand(session, createCommand(message.getPayload()));
-    }
-
-    private Command createCommand(String command) throws Exception {
-        switch (command) {
-        case "LEFT":
-            return service.left();
-        case "RIGHT":
-            return service.right();
-        case "PRESENTATION":
-            return service.presentation();
-        case "SCREENSHOT":
-            return service.screenshot();
-        default:
-            return service.resize(command);
-        }
-    }
-
-    private void sendCommand(WebSocketSession session, Command command) throws Exception {
-        session.sendMessage(new TextMessage(objectMapper.writeValueAsString(command)));
+        Command command = Command.create(service, message.getPayload());
+        command.send(session, objectMapper);
     }
 }

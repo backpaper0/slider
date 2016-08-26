@@ -1,8 +1,6 @@
 package slider;
 
-import java.awt.AWTException;
 import java.awt.event.KeyEvent;
-import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,22 +15,22 @@ public class CommandService {
     @Autowired
     private CommandContext context;
 
-    public Command connected() throws AWTException {
+    public Command connected() {
         context.connected();
         return new InitCommand();
     }
 
-    public Command left() throws IOException, InterruptedException {
+    public Command left() {
         context.key(KeyEvent.VK_LEFT);
         return screenshot();
     }
 
-    public Command right() throws IOException, InterruptedException {
+    public Command right() {
         context.key(KeyEvent.VK_RIGHT);
         return screenshot();
     }
 
-    public Command presentation() throws IOException, InterruptedException {
+    public Command presentation() {
         context.key(KeyEvent.VK_P);
         return screenshot();
     }
@@ -43,7 +41,7 @@ public class CommandService {
         return new ResizeCommand(context.getWidth(), context.getHeight());
     }
 
-    public Command screenshot() throws IOException {
+    public Command screenshot() {
         String data = context.screenshot();
         return new ScreenshotCommand(data);
     }
