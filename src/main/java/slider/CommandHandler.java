@@ -6,37 +6,43 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @Component
 public class CommandHandler extends TextWebSocketHandler {
 
     @Autowired
     private CommandService service;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        session.sendMessage(new TextMessage(service.connected()));
+        sendCommand(session, service.connected());
     }
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message)
             throws Exception {
-        String command = message.getPayload();
+        sendCommand(session, createCommand(message.getPayload()));
+    }
+
+    private Command createCommand(String command) throws Exception {
         switch (command) {
         case "LEFT":
-            session.sendMessage(new TextMessage(service.left()));
-            break;
+            return service.left();
         case "RIGHT":
-            session.sendMessage(new TextMessage(service.right()));
-            break;
+            return service.right();
         case "PRESENTATION":
-            session.sendMessage(new TextMessage(service.presentation()));
-            break;
+            return service.presentation();
         case "SCREENSHOT":
-            session.sendMessage(new TextMessage(service.screenshot()));
-            break;
+            return service.screenshot();
         default:
-            session.sendMessage(new TextMessage(service.resize(command)));
-            break;
+            return service.resize(command);
         }
+    }
+
+    private void sendCommand(WebSocketSession session, Command command) throws Exception {
+        session.sendMessage(new TextMessage(objectMapper.writeValueAsString(command)));
     }
 }
