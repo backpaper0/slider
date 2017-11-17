@@ -4,14 +4,16 @@
 <head>
     <title>Slider</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <script src="hammer.min.js"></script>
     <style>
-        .command {
-            width: 40%;
-            height: 100px;
-        }
-
         #screenshot {
             border: 1px solid black;
+        }
+
+        #swipeArea {
+            border: 1px solid silver;
+            background-color: lightgray;
+            height: 200px;
         }
     </style>
 </head>
@@ -20,34 +22,31 @@
     <div>
         <canvas id="screenshot"></canvas>
     </div>
-    <div style="text-align:center;">
-        <button class="command" onclick="ws.send('SCREENSHOT')">Screenshot</button>
-        <button class="command" onclick="ws.send('PRESENTATION')">Presentation</button>
-    </div>
-    <div style="text-align:center;">
-        <button class="command" onclick="ws.send('LEFT')">Left</button>
-        <button class="command" onclick="ws.send('RIGHT')">Right</button>
-    </div>
+    <div id="swipeArea"></div>
     <script>
-        var ss = document.getElementById('screenshot');
-        var ws = new WebSocket('ws://' + location.host + '/commands');
-        ws.onmessage = function (event) {
-            console.log(event);
-            var obj = JSON.parse(event.data);
+        const ss = document.getElementById('screenshot');
+        const ws = new WebSocket('ws://' + location.host + '/commands');
+        ws.onmessage = event => {
+            const obj = JSON.parse(event.data);
             if (obj.type == 'init') {
                 ws.send(Math.floor(window.innerWidth * 0.9));
             } else if (obj.type == 'resize') {
                 ss.width = obj.width;
                 ss.height = obj.height;
             } else if (obj.type == 'screenshot') {
-                var img = new Image();
+                const img = new Image();
                 img.src = obj.data;
                 img.onload = function () {
-                    var ctx = ss.getContext("2d");
+                    const ctx = ss.getContext("2d");
                     ctx.drawImage(img, 0, 0, ss.width, ss.height);
                 }
             }
         }
+        const hm = new Hammer(document.getElementById('swipeArea'), {})
+        hm.on('press', event => ws.send('SCREENSHOT'))
+        hm.on('swipeup', event => ws.send('PRESENTATION'))
+        hm.on('swipeleft', event => ws.send('RIGHT'))
+        hm.on('swiperight', event => ws.send('LEFT'))
     </script>
 </body>
 
