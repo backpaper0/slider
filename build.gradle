@@ -28,4 +28,5 @@ repositories {
 dependencies {
     compile 'org.springframework.boot:spring-boot-starter-websocket'
     compile "org.glassfish:javax.json:${jsonVersion}"
+	runtime 'org.springframework.boot:spring-boot-devtools'
 }
