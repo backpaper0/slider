@@ -2,6 +2,7 @@ package slider;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -12,17 +13,17 @@ public class Command implements Serializable {
 
     public final String type;
 
-    public void send(WebSocketSession session, ObjectMapper objectMapper) {
+    public void send(final WebSocketSession session, final ObjectMapper objectMapper) {
         try {
-            String json = objectMapper.writeValueAsString(this);
-            TextMessage message = new TextMessage(json);
+            final String json = objectMapper.writeValueAsString(this);
+            final TextMessage message = new TextMessage(json);
             session.sendMessage(message);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static Command create(CommandService service, String command) {
+    public static Command create(final CommandService service, final String command) {
         switch (command) {
         case "LEFT":
             return service.left();
@@ -37,8 +38,8 @@ public class Command implements Serializable {
         }
     }
 
-    public Command(String type) {
-        this.type = type;
+    public Command(final String type) {
+        this.type = Objects.requireNonNull(type);
     }
 
     public static class InitCommand extends Command {
@@ -49,7 +50,8 @@ public class Command implements Serializable {
 
     public static class ScreenshotCommand extends Command {
         public final String data;
-        public ScreenshotCommand(String data) {
+
+        public ScreenshotCommand(final String data) {
             super("screenshot");
             this.data = data;
         }
@@ -58,7 +60,8 @@ public class Command implements Serializable {
     public static class ResizeCommand extends Command {
         public final int width;
         public final int height;
-        public ResizeCommand(int width, int height) {
+
+        public ResizeCommand(final int width, final int height) {
             super("resize");
             this.width = width;
             this.height = height;

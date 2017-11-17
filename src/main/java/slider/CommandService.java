@@ -1,8 +1,8 @@
 package slider;
 
 import java.awt.event.KeyEvent;
+import java.util.Objects;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import slider.Command.InitCommand;
@@ -12,8 +12,11 @@ import slider.Command.ScreenshotCommand;
 @Component
 public class CommandService {
 
-    @Autowired
-    private CommandContext context;
+    private final CommandContext context;
+
+    public CommandService(final CommandContext context) {
+        this.context = Objects.requireNonNull(context);
+    }
 
     public Command connected() {
         context.connected();
@@ -35,14 +38,14 @@ public class CommandService {
         return screenshot();
     }
 
-    public Command resize(String command) {
-        int width = Integer.parseInt(command);
+    public Command resize(final String command) {
+        final int width = Integer.parseInt(command);
         context.resize(width);
         return new ResizeCommand(context.getWidth(), context.getHeight());
     }
 
     public Command screenshot() {
-        String data = context.screenshot();
+        final String data = context.screenshot();
         return new ScreenshotCommand(data);
     }
 }

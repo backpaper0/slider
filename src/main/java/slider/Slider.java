@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class Slider {
 
-    public static void main(String[] args) throws Exception {
-        SpringApplication app = new SpringApplication(Slider.class);
+    public static void main(final String[] args) throws Exception {
+        final SpringApplication app = new SpringApplication(Slider.class);
         app.setHeadless(false);
         app.run(args);
     }

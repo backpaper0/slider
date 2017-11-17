@@ -1,49 +1,54 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Slider</title>
-        <meta name="viewport" content="width=device-width,initial-scale=1">
-        <style>
-            .command {
-                width: 40%;
-                height: 100px;
-            }
-            #screenshot { border: 1px solid black; }
-        </style>
-    </head>
-    <body>
-        <div>
-            <canvas id="screenshot"></canvas>
-        </div>
-        <div style="text-align:center;">
-            <button class="command" onclick="ws.send('SCREENSHOT')">Screenshot</button>
-            <button class="command" onclick="ws.send('PRESENTATION')">Presentation</button>
-        </div>
-        <div style="text-align:center;">
-            <button class="command" onclick="ws.send('LEFT')">Left</button>
-            <button class="command" onclick="ws.send('RIGHT')">Right</button>
-        </div>
-        <script>
-            var ss = document.getElementById('screenshot');
-            var ws = new WebSocket('ws://' + location.host + '/commands');
-            ws.onmessage = function(event) {
-                console.log(event);
-                var obj = JSON.parse(event.data);
-                if (obj.type == 'init') {
-                    ws.send(Math.floor(window.innerWidth * 0.9));
-                } else if (obj.type == 'resize') {
-                    ss.width = obj.width;
-                    ss.height = obj.height;
-                } else if (obj.type == 'screenshot') {
-                    var img = new Image();
-                    img.src = obj.data;
-                    img.onload = function() {
-                        var ctx = ss.getContext("2d");
-                        ctx.drawImage(img, 0, 0, ss.width, ss.height);
-                    }
+
+<head>
+    <title>Slider</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+        .command {
+            width: 40%;
+            height: 100px;
+        }
+
+        #screenshot {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <canvas id="screenshot"></canvas>
+    </div>
+    <div style="text-align:center;">
+        <button class="command" onclick="ws.send('SCREENSHOT')">Screenshot</button>
+        <button class="command" onclick="ws.send('PRESENTATION')">Presentation</button>
+    </div>
+    <div style="text-align:center;">
+        <button class="command" onclick="ws.send('LEFT')">Left</button>
+        <button class="command" onclick="ws.send('RIGHT')">Right</button>
+    </div>
+    <script>
+        var ss = document.getElementById('screenshot');
+        var ws = new WebSocket('ws://' + location.host + '/commands');
+        ws.onmessage = function (event) {
+            console.log(event);
+            var obj = JSON.parse(event.data);
+            if (obj.type == 'init') {
+                ws.send(Math.floor(window.innerWidth * 0.9));
+            } else if (obj.type == 'resize') {
+                ss.width = obj.width;
+                ss.height = obj.height;
+            } else if (obj.type == 'screenshot') {
+                var img = new Image();
+                img.src = obj.data;
+                img.onload = function () {
+                    var ctx = ss.getContext("2d");
+                    ctx.drawImage(img, 0, 0, ss.width, ss.height);
                 }
             }
-        </script>
-    </body>
-</html>
+        }
+    </script>
+</body>
 
+</html>

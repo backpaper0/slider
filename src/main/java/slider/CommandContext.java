@@ -28,7 +28,7 @@ public class CommandContext {
     public void connected() {
         try {
             robot = new Robot();
-        } catch (AWTException e) {
+        } catch (final AWTException e) {
             throw new RuntimeException(e);
         }
         dm = GraphicsEnvironment
@@ -37,38 +37,38 @@ public class CommandContext {
                 .getDisplayMode();
     }
 
-    public void key(int keycode) {
+    public void key(final int keycode) {
         robot.keyPress(keycode);
         robot.waitForIdle();
         robot.keyRelease(keycode);
         robot.waitForIdle();
         try {
             TimeUnit.MILLISECONDS.sleep(300);
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void resize(int width) {
+    public void resize(final int width) {
         this.width = width;
         this.height = width * dm.getHeight() / dm.getWidth();
     }
 
     public String screenshot() {
-        Rectangle r = new Rectangle(0, 0, dm.getWidth(), dm.getHeight());
-        BufferedImage src = robot.createScreenCapture(r);
-        BufferedImage dest = new BufferedImage(width, height, src.getType());
-        Graphics2D g = dest.createGraphics();
-        Image img = src.getScaledInstance(width, height, BufferedImage.SCALE_SMOOTH);
+        final Rectangle r = new Rectangle(0, 0, dm.getWidth(), dm.getHeight());
+        final BufferedImage src = robot.createScreenCapture(r);
+        final BufferedImage dest = new BufferedImage(width, height, src.getType());
+        final Graphics2D g = dest.createGraphics();
+        final Image img = src.getScaledInstance(width, height, BufferedImage.SCALE_SMOOTH);
         g.drawImage(img, 0, 0, width, height, null);
         g.dispose();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
             ImageIO.write(dest, "jpeg", out);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
-        String data = "data:image/jpeg;base64,"
+        final String data = "data:image/jpeg;base64,"
                 + Base64.getEncoder().encodeToString(out.toByteArray());
         return data;
     }
